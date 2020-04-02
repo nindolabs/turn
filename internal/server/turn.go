@@ -270,9 +270,9 @@ func handleSendIndication(r Request, m *stun.Message) error {
 
 	// Always send to localhost
 	msgDst := &net.UDPAddr{IP: net.ParseIP("127.0.0.1"), Port: peerAddress.Port}
-	if perm := a.GetPermission(msgDst); perm == nil {
-		return fmt.Errorf("unable to handle send-indication, no permission added: %v", msgDst)
-	}
+	//if perm := a.GetPermission(msgDst); perm == nil {
+	//	return fmt.Errorf("unable to handle send-indication, no permission added: %v", msgDst)
+	//}
 
 	l, err := a.RelaySocket.WriteTo(dataAttr, msgDst)
 	if l != len(dataAttr) {
