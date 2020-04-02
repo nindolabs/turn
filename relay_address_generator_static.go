@@ -38,7 +38,7 @@ func (r *RelayAddressGeneratorStatic) Validate() error {
 
 // AllocatePacketConn generates a new PacketConn to receive traffic on and the IP/Port to populate the allocation response with
 func (r *RelayAddressGeneratorStatic) AllocatePacketConn(network string, requestedPort int) (net.PacketConn, net.Addr, error) {
-	conn, err := r.Net.ListenPacket(network, r.Address+":"+strconv.Itoa(requestedPort))
+	conn, err := r.Net.ListenPacket(network, "127.0.0.1:"+strconv.Itoa(requestedPort))
 	if err != nil {
 		return nil, nil, err
 	}
