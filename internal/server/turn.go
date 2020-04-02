@@ -10,6 +10,8 @@ import (
 	"github.com/pion/turn/v2/internal/proto"
 )
 
+var loopback = net.ParseIP("127.0.0.1")
+
 // // https://tools.ietf.org/html/rfc5766#section-6.2
 func handleAllocateRequest(r Request, m *stun.Message) error {
 	r.Log.Debugf("received AllocateRequest from %s", r.SrcAddr.String())
@@ -269,7 +271,7 @@ func handleSendIndication(r Request, m *stun.Message) error {
 	}
 
 	// Always send to localhost
-	msgDst := &net.UDPAddr{IP: net.ParseIP("127.0.0.1"), Port: peerAddress.Port}
+	msgDst := &net.UDPAddr{IP: loopback, Port: peerAddress.Port}
 	//if perm := a.GetPermission(msgDst); perm == nil {
 	//	return fmt.Errorf("unable to handle send-indication, no permission added: %v", msgDst)
 	//}
@@ -325,7 +327,6 @@ func handleChannelBindRequest(r Request, m *stun.Message) error {
 	return buildAndSend(r.Conn, r.SrcAddr, buildMsg(m.TransactionID, stun.NewType(stun.MethodChannelBind, stun.ClassSuccessResponse), []stun.Setter{messageIntegrity}...)...)
 }
 
-var loopback = net.ParseIP("127.0.0.1")
 func handleChannelData(r Request, c *proto.ChannelData) error {
 	r.Log.Debugf("received ChannelData from %s", r.SrcAddr.String())
 
