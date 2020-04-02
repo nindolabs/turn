@@ -223,6 +223,9 @@ func (a *Allocation) packetHandler(m *Manager) {
 			return
 		}
 
+		// Replace srcAddr by relay addr so we can retrieve created channels & permissions
+		srcAddr.(*net.UDPAddr).IP = a.RelayAddr.(*net.UDPAddr).IP
+
 		a.log.Debugf("relay socket %s received %d bytes from %s",
 			a.RelaySocket.LocalAddr().String(),
 			n,

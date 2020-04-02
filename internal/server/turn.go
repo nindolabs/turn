@@ -268,7 +268,8 @@ func handleSendIndication(r Request, m *stun.Message) error {
 		return err
 	}
 
-	msgDst := &net.UDPAddr{IP: peerAddress.IP, Port: peerAddress.Port}
+	// Always send to localhost
+	msgDst := &net.UDPAddr{IP: net.ParseIP("127.0.0.1"), Port: peerAddress.Port}
 	if perm := a.GetPermission(msgDst); perm == nil {
 		return fmt.Errorf("unable to handle send-indication, no permission added: %v", msgDst)
 	}
@@ -324,6 +325,7 @@ func handleChannelBindRequest(r Request, m *stun.Message) error {
 	return buildAndSend(r.Conn, r.SrcAddr, buildMsg(m.TransactionID, stun.NewType(stun.MethodChannelBind, stun.ClassSuccessResponse), []stun.Setter{messageIntegrity}...)...)
 }
 
+var loopback = net.ParseIP("127.0.0.1")
 func handleChannelData(r Request, c *proto.ChannelData) error {
 	r.Log.Debugf("received ChannelData from %s", r.SrcAddr.String())
 
@@ -341,7 +343,10 @@ func handleChannelData(r Request, c *proto.ChannelData) error {
 		return fmt.Errorf("no channel bind found for %x", uint16(c.Number))
 	}
 
-	l, err := a.RelaySocket.WriteTo(c.Data, channel.Peer)
+	// Replace peer ip by loopback address
+	clonePeer := *(channel.Peer.(*net.UDPAddr))
+	clonePeer.IP = loopback
+	l, err := a.RelaySocket.WriteTo(c.Data, &clonePeer)
 	if err != nil {
 		return fmt.Errorf("failed writing to socket: %s", err.Error())
 	} else if l != len(c.Data) {
